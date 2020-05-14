@@ -66,19 +66,6 @@ func WrapperHandler(metric metric.MetricInterface) http.Handler {
 		// returns the metrics captured from it within processing time from start to finish.
 		m := httpsnoop.CaptureMetrics(HttpRouter, w, r)
 
-		// define web response status for tagging
-		var statusTag string
-		switch m.Code {
-		case response.GetHTTPCode(response.STATUSCODE_GENERICSUCCESS):
-			statusTag = "status:success_response"
-			break
-		case response.GetHTTPCode(response.STATUSCODE_NOT_FOUND):
-			statusTag = "status:error_not_found"
-			break
-		default:
-			statusTag = "status:error_response"
-		}
-
 		// capture route-path from request header for metric tagging
 		urlPathTag := r.Header.Get("routePath")
 		if urlPathTag == "" {
@@ -88,7 +75,6 @@ func WrapperHandler(metric metric.MetricInterface) http.Handler {
 		// define datadog metric tags
 		tags := []string{
 			"via:http",
-			statusTag,
 			fmt.Sprintf("url_path:%s", urlPathTag),
 			fmt.Sprintf("url:%s", r.URL.Path),
 			fmt.Sprintf("resp_code:%d", m.Code),

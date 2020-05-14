@@ -1,6 +1,8 @@
 package api
 
 import (
+	"fmt"
+	"log"
 	"net/http"
 	"strconv"
 	"time"
@@ -51,54 +53,84 @@ func (a *API) Register() {
 
 // Accounts handle accounts endpoint
 func (a *API) Accounts(w http.ResponseWriter, r *http.Request, ps httprouter.Params) *response.JSONResponse {
-	time.Sleep(5 * time.Second)
-
 	behaviour, err := parseControlledBehaviour(r)
 	if err != nil {
-		return response.NewJSONResponse().SetError(response.ErrInternalServerError)
-	}
-	if behaviour.Err != nil {
-		return response.NewJSONResponse().SetError(behaviour.Err)
+		return response.NewJSONResponse().SetError(response.ErrInternalServerError).SetMessage(fmt.Sprintf("%s error - %s", "Accounts", err.Error()))
 	}
 
-	return response.NewJSONResponse().SetData("You've been logged out successfully")
+	if behaviour.LatencyInSecond > 0 {
+		timeDuration := time.Duration(behaviour.LatencyInSecond)
+		time.Sleep(timeDuration * time.Second)
+
+		log.Println("Latency: ", behaviour.LatencyInSecond)
+	}
+	if behaviour.Err != nil {
+		return response.NewJSONResponse().SetError(behaviour.Err).SetMessage(fmt.Sprintf("%s error - %s", "Accounts", behaviour.Err.Error()))
+	}
+
+	timeDuration := time.Duration(behaviour.LatencyInSecond)
+	if behaviour.LatencyInSecond > 0 {
+		time.Sleep(timeDuration * time.Second)
+	}
+
+	return response.NewJSONResponse().SetData("Succeeded")
 }
 
 // Customers handle customers endpoint
 func (a *API) Customers(w http.ResponseWriter, r *http.Request, ps httprouter.Params) *response.JSONResponse {
-	return response.NewJSONResponse().SetError(response.ErrInternalServerError).SetMessage("Customers call error occured")
+	behaviour, err := parseControlledBehaviour(r)
+	if err != nil {
+		return response.NewJSONResponse().SetError(response.ErrInternalServerError).SetMessage(fmt.Sprintf("%s error - %s", "Customers", response.ErrInternalServerError.Error()))
+	}
 
-	// return response.NewJSONResponse().SetData("You've been logged out successfully")
+	if behaviour.LatencyInSecond > 0 {
+		timeDuration := time.Duration(behaviour.LatencyInSecond)
+		time.Sleep(timeDuration * time.Second)
+
+		log.Println("Latency: ", behaviour.LatencyInSecond)
+	}
+	if behaviour.Err != nil {
+		return response.NewJSONResponse().SetError(behaviour.Err).SetMessage(fmt.Sprintf("%s error - %s", "Customers", behaviour.Err.Error()))
+	}
+
+	return response.NewJSONResponse().SetData("Succeeded")
 }
 
 func parseControlledBehaviour(r *http.Request) (b controlledBehaviour, err error) {
 	b = controlledBehaviour{}
 
-	statusCode, err := strconv.Atoi(r.URL.Query().Get("status_code"))
-	if err != nil {
-		return
+	rawStatusCode := r.URL.Query().Get("status_code")
+	if len(rawStatusCode) > 0 {
+		statusCode, e := strconv.Atoi(rawStatusCode)
+		if e != nil {
+			err = e
+			return
+		}
+
+		switch statusCode {
+		case HTTPCodeBadRequest:
+			b.Err = response.ErrBadRequest
+			break
+		case HTTPForbiddenResource:
+			b.Err = response.ErrForbiddenResource
+			break
+		case HTTPGenericSuccess:
+			b.Err = nil
+			break
+		default:
+			b.Err = response.ErrInternalServerError
+			break
+		}
 	}
 
-	latencyInSecond, err := strconv.Atoi(r.URL.Query().Get("latency"))
-	if err != nil {
-		return
-	}
-
-	b.LatencyInSecond = latencyInSecond
-
-	switch statusCode {
-	case HTTPCodeBadRequest:
-		b.Err = response.ErrBadRequest
-		break
-	case HTTPForbiddenResource:
-		b.Err = response.ErrForbiddenResource
-		break
-	case HTTPGenericSuccess:
-		b.Err = nil
-		break
-	default:
-		b.Err = response.ErrInternalServerError
-		break
+	rawLatencyInSecond := r.URL.Query().Get("latency")
+	if len(rawLatencyInSecond) > 0 {
+		latencyInSecond, e := strconv.Atoi(rawLatencyInSecond)
+		if e != nil {
+			err = e
+			return
+		}
+		b.LatencyInSecond = latencyInSecond
 	}
 
 	return

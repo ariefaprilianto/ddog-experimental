@@ -1,0 +1,74 @@
+{
+	"info": {
+		"_postman_id": "0f414f6c-750e-4b0b-be55-ce2095bb2215",
+		"name": "DdogSvc Experimental",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Accounts",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:9001/accounts?status_code=400&latency=2",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "9001",
+					"path": [
+						"accounts"
+					],
+					"query": [
+						{
+							"key": "status_code",
+							"value": "400"
+						},
+						{
+							"key": "latency",
+							"value": "2"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Customers",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:9001/customers?status_code=400&latency=1",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "9001",
+					"path": [
+						"customers"
+					],
+					"query": [
+						{
+							"key": "status_code",
+							"value": "400"
+						},
+						{
+							"key": "latency",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"protocolProfileBehavior": {}
+}
