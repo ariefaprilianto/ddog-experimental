@@ -1,0 +1,10 @@
+[Api]
+  NormalPrefix = ""
+  DefaultTimeout = 20 
+
+[Server]
+  Name = "ddogsvc"
+  Port = ":9001"
+
+[Datadog]
+  Endpoint = "forwarder.local:8125"
