@@ -19,6 +19,7 @@ func main() {
 	os.Exit(Main())
 }
 
+// SvcName where you should put your custom service name here to distinguish stored ddog metric
 const SvcName = "ddogsvc"
 
 // Main is the main function
