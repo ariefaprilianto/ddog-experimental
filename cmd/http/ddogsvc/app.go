@@ -19,18 +19,16 @@ func main() {
 	os.Exit(Main())
 }
 
-// SvcName where you should put your custom service name here to distinguish stored ddog metric
-const SvcName = "ddogsvc"
-
 // Main is the main function
 func Main() int {
 	// configuration init
 	cfg := getConfig()
 
+	// cfg.Server.Name where you should put your custom service name here to distinguish stored ddog metric namespace
 	log.Printf("%s started,\n cfg=%+v", cfg.Server.Name, cfg) //message will not appear unless run with -debug switch
 
 	// metric initialization
-	datadogClient := datadog.New(SvcName, env.Get(), cfg.Datadog.Endpoint)
+	datadogClient := datadog.New(cfg.Server.Name, env.Get(), cfg.Datadog.Endpoint)
 	metric := &api.Metric{
 		DDogSvcMetric: datadogClient,
 	}
@@ -64,6 +62,6 @@ func earlyExit(flag bool) {
 
 func getConfig() *config.MainConfig {
 	cfg := &config.MainConfig{}
-	config.ReadConfig(cfg, SvcName, "main")
+	config.ReadConfig(cfg, "main")
 	return cfg
 }

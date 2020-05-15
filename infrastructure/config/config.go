@@ -29,7 +29,7 @@ type DatadogConfig struct {
 	Endpoint string
 }
 
-func ReadConfig(cfg interface{}, service string, module string, rootServicePath ...string) interface{} {
+func ReadConfig(cfg interface{}, module string, rootServicePath ...string) interface{} {
 	configPath := ""
 	dir, _ := os.Getwd()
 
@@ -41,9 +41,6 @@ func ReadConfig(cfg interface{}, service string, module string, rootServicePath 
 
 	for _, dirName := range dirNames {
 		configPath += dirName + "/"
-		if dirName == service {
-			break
-		}
 	}
 
 	log.Println("configPath: ", configPath)
@@ -55,13 +52,7 @@ func ReadConfig(cfg interface{}, service string, module string, rootServicePath 
 	configPath += ""
 	ok := ReadModuleConfig(cfg, configPath, module)
 	if !ok {
-		configPathNew := fmt.Sprintf("/etc/%s", service)
-		log.Printf("failed to read config for module:%s at Path:%s. So trying to read from %s for environ=%s\n", module, configPath, configPathNew, environ)
-		configPath = configPathNew
-		ok = ReadModuleConfig(cfg, configPath, module)
-		if !ok {
-			log.Fatalf("failed to read config for module:%s at Path:%s for environ=%s\n", module, configPath, environ)
-		}
+		log.Fatalf("failed to read config for module:%s at Path:%s for environ=%s\n", module, configPath, environ)
 	}
 
 	return cfg
